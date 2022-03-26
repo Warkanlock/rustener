@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate rocket;
 
-use nanoid::nanoid;
+use nanoid::nanoid; // used for random identifier generation
 use rocket::serde::json::{json, Json, Value};
 use rocket::serde::{Deserialize, Serialize};
 use rocket::tokio::sync::Mutex;
@@ -32,7 +32,8 @@ struct UrlMetadata {
     creator: String,
 }
 
-// this way is not the best and more performant way but it's fast and easy to implement
+// this is not the best and most performant way to do it,
+// but it's fast and easy to implement
 type InMemoryCache = Mutex<HashMap<String, UrlInformation>>;
 
 #[post("/new", format = "application/json", data = "<url>")]
@@ -57,7 +58,7 @@ async fn new_url(records: &State<InMemoryCache>, url: Json<UrlMetadata>) -> Valu
 
     json!({
         "status" : "200",
-        "message" : "Record inserted",
+        "message" : "Url created ✅",
         "identifier" : new_identifier
     })
 }
@@ -66,7 +67,7 @@ async fn new_url(records: &State<InMemoryCache>, url: Json<UrlMetadata>) -> Valu
 async fn index(records: &State<InMemoryCache>) -> Json<WelcomeMessage> {
     let lock_records = records.lock().await;
     Json(WelcomeMessage {
-        message: String::from("Welcome to Rustener, a fast url shortener"),
+        message: String::from("Welcome to Rustener, a fast url shortener made in 🦀"),
         version: "0.0.1".to_string(),
         total_urls: lock_records.len(),
     })
@@ -81,10 +82,10 @@ async fn get_url(identifier: String, records: &State<InMemoryCache>) -> Option<V
 }
 
 #[catch(404)]
-fn not_found() -> Value {
+fn resource_not_found() -> Value {
     json!({
         "status": "404",
-        "reason": "Resource not found."
+        "reason": "Resource not found ❌"
     })
 }
 
@@ -93,5 +94,5 @@ fn rocket() -> _ {
     rocket::build()
         .manage(InMemoryCache::new(HashMap::new()))
         .mount("/", routes![index, new_url, get_url])
-        .register("/", catchers![not_found])
+        .register("/", catchers![resource_not_found])
 }
