@@ -26,5 +26,5 @@ curl --request GET \
 ### **Visualize** data from an identifier
 
 ```curl
-curl --request GET --url http://127.0.0.1:8000/<identifier>
+curl --request GET --url http://127.0.0.1:8000/{identifier}
 ```
